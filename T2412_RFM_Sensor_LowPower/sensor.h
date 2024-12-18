@@ -1,17 +1,19 @@
 #ifndef __SENSOR_H__
 #define __SENSOR_H__
 
-#define  SENSOR_ZONE_LEN    10
+#define  SENSOR_SENSOR_LEN    10
 #define  SENSOR_NAME_LEN    10
 
-typedef enum
-{
-  ZONE_UNDEFINED = 0, 
-  ZONE_VA_TUPA,
-  ZONE_LA_H,
-  ZONE_LA_STUDIO,
-  ZONE_DOCK
-} zone_indx_et;
+//#define SENSOR_UNDEFINED 
+#define SENSOR_VA_TUPA
+//#define SENSOR_VA_MH1
+//#define SENSOR_VA_MH2
+//#define SENSOR_VA_PARVI
+//#define SENSOR_VA_KHH
+//#define SENSOR_VA_OD
+//#define SENSOR_LA_H
+//#define SENSOR_LA_STUDIO
+//#define SENSOR_DOCK
 
 typedef enum
 {
@@ -24,19 +26,16 @@ typedef enum
 
 typedef struct
 {
-  char  zone[SENSOR_ZONE_LEN];
-  char  label[SENSOR_NAME_LEN];
-  bool  active;
-  float value;
-  uint32 interval;
+  char      zone[SENSOR_SENSOR_LEN];
+  char      label[SENSOR_NAME_LEN];
+  bool      active;
+  float     value;
+  uint32_t  interval;
 
 } sensor_st;
 
 #endif
 
-sensor_st sensor[SENSOR_NBR_OF] =
-{
-  //                  1234567890  1234567890
-  [SENSOR_BME680] = {"Dock     ", "T_BME680"},
 
-}
+
+
