@@ -1,42 +1,5 @@
 #include "main.h"
-#include "uart.h"
 #include "json.h"
-
-uint16_t json_convert_uart_node_to_json(char *buff, uart_msg_st *uart_p)
-{
-    byte i;
-    unsigned int json_len;
-    //Serial.println("ConvertFloatSensorToJson");
-    String JsonString; 
-    JsonString = "{\"Z\":\"";
-    JsonString += uart_p->node.zone;
-    JsonString += "\",";
-    JsonString += "\"S\":\"";
-    JsonString += uart_p->node.name;  
-    JsonString += "\",";
-    JsonString += "\"V\":\"";
-    JsonString += uart_p->node.value;
-    JsonString += "\",";
-    JsonString += "\"R\":\"";
-    JsonString += uart_p->node.remark;
-    JsonString += "\"}";
-    
-    //Serial.println(JsonString);
-    json_len = JsonString.length();
-    if (json_len <= MAX_MESSAGE_LEN){
-        //for (i=0;i<MAX_MESSAGE_LEN;i++) radio_packet[i]=0;
-        JsonString.toCharArray(buff, MAX_MESSAGE_LEN);
-        #ifdef DEBUG_PRINT
-        Serial.println(json_len);
-        #endif       
-        return( json_len );
-    }
-    else {
-      Serial.print("JSON string was too long for the radio packet: "); 
-      Serial.println(json_len);
-      return(0);
-    }
-}
 
 
 uint16_t json_convert_sensor_float_to_json(
@@ -104,11 +67,3 @@ String json_parse_tag(String json_str, const char *tag){
     
 }
 
-
-void json_pick_data_from_rx(uart_msg_st *uart_p)
-{
-    uart_p->node.zone   = json_parse_tag(uart_p->rx.str, "{\"Z");
-    uart_p->node.name   = json_parse_tag(uart_p->rx.str, ",\"S");
-    uart_p->node.value  = json_parse_tag(uart_p->rx.str, ",\"V");
-    uart_p->node.remark = json_parse_tag(uart_p->rx.str, ",\"R");
-}

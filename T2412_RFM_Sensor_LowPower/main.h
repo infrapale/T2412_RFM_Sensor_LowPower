@@ -2,8 +2,8 @@
 #define __MAIN_H__
 #include "WString.h"
 
-//#define DEBUG_PRINT 
-#define SEND_TEST_MSG 
+#define DEBUG_PRINT 
+//#define SEND_TEST_MSG 
 //#define ADA_M0_RFM69 
 #define PRO_MINI_RFM69
 #include <Arduino.h>
@@ -14,6 +14,7 @@
 #else
 #define SerialX Serial
 #endif
+//#define SLEEP_CTRL
 #define SLEEP_CTRL_I2C_ADDR   (0x24)
 #define TASK_NBR_OF           3
 //#define LED_INDICATION

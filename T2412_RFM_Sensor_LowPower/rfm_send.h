@@ -1,6 +1,5 @@
 #ifndef __RFM_SEND_H__
 #define __RFM_SEND_H__
-#include  "uart.h"
 
 typedef struct
 {
