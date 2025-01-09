@@ -90,7 +90,7 @@ void setup()
     //while (!Serial); // wait until serial console is open, remove if not tethered to computer
     delay(2000);
     Serial.begin(9600);
-    Serial.print(F("T4121_RFM_Sensor_LowPower")); Serial.print(F(" Compiled: "));
+    Serial.print(F("T2412_RFM_Sensor_LowPower")); Serial.print(F(" Compiled: "));
     Serial.print(__DATE__); Serial.print(" ");
     Serial.print(__TIME__); Serial.println();
     Serial.flush();

@@ -8,7 +8,8 @@
 
 //#define ZONE_UNDEFINED 
 //#define ZONE_VA_TUPA
-#define ZONE_TEST
+#define ZONE_VA_OD
+//#define ZONE_TEST
 //#define SENSOR_VA_MH1
 //#define SENSOR_VA_MH2
 //#define SENSOR_VA_PARVI
@@ -27,6 +28,9 @@ typedef enum
   SENSOR_VALUE_PRESSURE,
   SENSOR_VALUE_GAS,
   SENSOR_VALUE_LDR,
+  SENSOR_VALUE_LUX,
+  SENSOR_VALUE_ALS,
+  SENSOR_VALUE_WHITE,
 } sensor_value_type_et;
 
 typedef enum
@@ -35,6 +39,8 @@ typedef enum
   SENSOR_BME680,
   SENSOR_SCD30,
   SENSOR_LDR,
+  SENSOR_VEML7700,
+  SENSOR_MCP9808,
   SENSOR_BME680_HUM,
   SENSOR_BME680_PRESSURE,
   SENSOR_CO2,

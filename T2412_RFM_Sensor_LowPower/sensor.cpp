@@ -1,3 +1,7 @@
+/*
+https://learn.adafruit.com/adafruit-veml7700/overview
+https://learn.adafruit.com/adafruit-mcp9808-precision-i2c-temperature-sensor-guide
+*/
 #include "main.h"
 #include "sensor.h"
 #include "atask.h"
@@ -7,6 +11,12 @@
 #include <Adafruit_SCD30.h>
 #include "json.h"
 #include "rfm_send.h"
+#include "Adafruit_MCP9808.h"
+#include "Adafruit_VEML7700.h"
+
+
+
+// Create the MCP9808 temperature sensor object
 
 #define SEALEVELPRESSURE_HPA (1013.25)
 
@@ -72,6 +82,37 @@ sensor_ctrl_st sensor_ctrl;
   };
     
 #endif
+#ifdef ZONE_VA_OD
+  #define NBR_OF_SENSORS 2
+  #define MCP9808_ADDR      0x18
+  #define VEML7700_ADDR     0x10
+  
+  sensor_st sensor[NBR_OF_SENSORS] =
+  {
+    {
+      "VA_OD",
+      .sensor_type = SENSOR_MCP9808,
+      {
+        {"Temp", SENSOR_VALUE_TEMPERATURE,  MCP9808_ADDR, 0.0, false, 00000, 30000 },
+        {"-",     SENSOR_VALUE_UNDEFINED, 0u, 0.0, false, 0, 60000 },
+        {"-",     SENSOR_VALUE_UNDEFINED, 0u, 0.0, false, 0, 60000 },
+        {"-",     SENSOR_VALUE_UNDEFINED, 0u, 0.0, false, 0, 60000 },
+      }
+    },    
+    {
+      "VA_OD",
+      .sensor_type = SENSOR_VEML7700,
+      {
+        {"Lux",   SENSOR_VALUE_LUX,       VEML7700_ADDR, 0.0, false, 50000, 60000 },
+        {"-",     SENSOR_VALUE_ALS,       VEML7700_ADDR, 0.0, false, 0, 60000 },
+        {"-",     SENSOR_VALUE_WHITE,     VEML7700_ADDR, 0.0, false, 0, 60000 },
+        {"-",     SENSOR_VALUE_UNDEFINED, 0u, 0.0, false , 0, 60000},
+      }
+    }
+  };
+    
+#endif
+
 
 #ifdef ZONE_TEST
   #define NBR_OF_SENSORS 1
@@ -84,10 +125,10 @@ sensor_ctrl_st sensor_ctrl;
       "Test",
       .sensor_type = SENSOR_SCD30,
       {
-        {"Temp", SENSOR_VALUE_TEMPERATURE,  SCD30_ADDR, 0.0, false, 10000, 60000 },
-        {"Hum",  SENSOR_VALUE_HUMIDITY,     SCD30_ADDR, 0.0, false, 20000, 60000 },
-        {"CO2",  SENSOR_VALUE_CO2,          SCD30_ADDR, 0.0, false, 30000, 60000 },
-        {"-",    SENSOR_VALUE_UNDEFINED,    SCD30_ADDR, 0.0, false, 40000, 60000 },
+        {"Temp", SENSOR_VALUE_TEMPERATURE,  SCD30_ADDR, 0.0, false, 10000, 300000 },
+        {"Hum",  SENSOR_VALUE_HUMIDITY,     SCD30_ADDR, 0.0, false, 20000, 300000 },
+        {"CO2",  SENSOR_VALUE_CO2,          SCD30_ADDR, 0.0, false, 30000, 300000 },
+        {"-",    SENSOR_VALUE_UNDEFINED,    SCD30_ADDR, 0.0, false, 40000, 300000 },
       }
     }
   };
@@ -100,6 +141,14 @@ Adafruit_BME680 bme(&Wire); // I2C
 
 #ifdef USE_SCD30
   Adafruit_SCD30  scd30;
+#endif
+
+#ifdef MCP9808_ADDR
+  Adafruit_MCP9808 mcp9808_sensor = Adafruit_MCP9808();
+#endif
+
+#ifdef VEML7700_ADDR
+Adafruit_VEML7700 veml = Adafruit_VEML7700();
 #endif
 
 
@@ -150,6 +199,61 @@ void sensor_initialize(void)
 
 
   #endif
+
+  #ifdef MCP9808_ADDR
+    if (!mcp9808_sensor.begin(MCP9808_ADDR)) {
+      Serial.println("Couldn't find MCP9808! Check your connections and verify the address is correct.");
+      while (1);
+    }     
+    Serial.println("Found MCP9808!");
+    mcp9808_sensor.setResolution(3); // sets the resolution mode of reading, the modes are defined in the table bellow:
+    // Mode Resolution SampleTime
+    //  0    0.5°C       30 ms
+    //  1    0.25°C      65 ms
+    //  2    0.125°C     130 ms
+    //  3    0.0625°C    250 ms
+
+  #endif
+
+  #ifdef VEML7700_ADDR
+    if (!veml.begin()) {
+      Serial.println("Sensor not found");
+      while (1);
+    }
+    Serial.println("Sensor found");
+
+    // == OPTIONAL =====
+    // Can set non-default gain and integration time to
+    // adjust for different lighting conditions.
+    // =================
+    // veml.setGain(VEML7700_GAIN_1_8);
+    // veml.setIntegrationTime(VEML7700_IT_100MS);
+
+   
+ Serial.print(F("Gain: "));
+    switch (veml.getGain()) {
+      case VEML7700_GAIN_1: Serial.println("1"); break;
+      case VEML7700_GAIN_2: Serial.println("2"); break;
+      case VEML7700_GAIN_1_4: Serial.println("1/4"); break;
+      case VEML7700_GAIN_1_8: Serial.println("1/8"); break;
+    }
+
+    Serial.print(F("Integration Time (ms): "));
+    switch (veml.getIntegrationTime()) {
+      case VEML7700_IT_25MS: Serial.println("25"); break;
+      case VEML7700_IT_50MS: Serial.println("50"); break;
+      case VEML7700_IT_100MS: Serial.println("100"); break;
+      case VEML7700_IT_200MS: Serial.println("200"); break;
+      case VEML7700_IT_400MS: Serial.println("400"); break;
+      case VEML7700_IT_800MS: Serial.println("800"); break;
+    }
+
+    veml.setLowThreshold(10000);
+    veml.setHighThreshold(20000);
+    // veml.interruptEnable(true);
+
+  #endif
+
   // Initialize LDR
   for(uint8_t sindx = 0; sindx < NBR_OF_SENSORS; sindx++)
   {
@@ -243,7 +347,7 @@ bool sensor_read_scd30(uint8_t indx)
     return scd30_ok;
 }
 
-void sensor_read_ldr(uint8_t sindx)
+bool sensor_read_ldr(uint8_t sindx)
 {
     for(uint8_t vindx= 0; vindx < SENSOR_MAX_VALUES; vindx++)
     {
@@ -256,6 +360,48 @@ void sensor_read_ldr(uint8_t sindx)
                 break;
         }    
     }
+  return true;
+}
+
+void sensor_read_mcp9808(uint8_t sindx)
+{
+    #ifdef MCP9808_ADDR
+    for(uint8_t vindx= 0; vindx < SENSOR_MAX_VALUES; vindx++)
+    {
+        switch(sensor[sindx].values[vindx].type)
+        {
+            case SENSOR_VALUE_TEMPERATURE:
+                sensor[sindx].values[vindx].value = mcp9808_sensor.readTempC();
+                break;
+        }    
+    }
+    #endif
+    return true;
+}
+
+void sensor_read_veml7700(uint8_t sindx)
+{
+    #ifdef VEML7700_ADDR
+    // for(uint8_t vindx= 0; vindx < SENSOR_MAX_VALUES; vindx++)
+    // {
+    //     switch(sensor[sindx].values[vindx].type)
+    //     {
+    //         case SENSOR_VALUE_LUX:
+    //             sensor[sindx].values[vindx].value = veml.readLux();
+    //             break;
+    //         case SENSOR_VALUE_ALS:
+    //             sensor[sindx].values[vindx].value = veml.readALS();
+    //             break;
+    //         case SENSOR_VALUE_WHITE:
+    //             sensor[sindx].values[vindx].value = veml.readWhite();
+    //             break;
+    //     }    
+    // }
+    // uint16_t irq = veml.interruptStatus();
+    // if (irq & VEML7700_INTERRUPT_LOW) Serial.println("** Low threshold");
+    // if (irq & VEML7700_INTERRUPT_HIGH) Serial.println("** High threshold");
+    #endif
+    return true;
 }
 
 
@@ -274,6 +420,13 @@ void sensor_read_all(void)
             case SENSOR_SCD30:
                 sensor_read_scd30(sindx);
                 break;
+            case SENSOR_MCP9808:
+                sensor_read_mcp9808(sindx);
+                break;
+            case SENSOR_VEML7700:
+                sensor_read_veml7700(sindx);
+                break;
+    
         }
 
     }
