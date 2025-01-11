@@ -526,6 +526,8 @@ void sensor_read_task(void)
     {
         case 0:
             sensor_read_handle.state = 10;
+            io_pwr_on_1(false);
+            atask_delay(sensor_ctrl.read_task_indx,4000);
             break;
         case 10:
             io_pwr_on_1(true);
