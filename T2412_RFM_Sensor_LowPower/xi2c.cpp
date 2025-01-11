@@ -127,6 +127,18 @@ void xi2c_initialize(uint8_t i2c_addr)
 
 }
 
+void clear_local_watchdog(void)
+{
+    #ifdef PRO_MINI_RFM69
+    watchdog.clear();
+    #endif
+    #ifdef  ADA_M0_RFM69
+    
+    #endif
+      
+}
+
+
 void xi2c_print_rx_buff(void)
 {
   Serial.print("i2c.rx: ");

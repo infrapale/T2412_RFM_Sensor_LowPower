@@ -13,6 +13,8 @@
 #define RFM69_INT     2
 #define RFM69_IRQN    0  // Pin 2 is IRQ 0!
 #define RFM69_RST     9
+
+#define PIN_POWER_ON_1  3
 #endif
 // LED Definitions
 #define PIN_LED_ONBOARD 13  // onboard blinky
@@ -35,6 +37,8 @@ void io_initialize(void);
 void io_led_flash(led_index_et led_indx, uint16_t nbr_ticks );
 
 void io_run_100ms(void);
+
+void io_pwr_on_1(bool pwr_ctrl);
 
 
 #endif

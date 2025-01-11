@@ -49,7 +49,8 @@ typedef enum
 
 
 void sensor_initialize(void);
-void sensor_task(void);
+void sensor_read_task(void);
+void sensor_send_task(void);
 
 
 #endif

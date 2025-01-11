@@ -15,8 +15,8 @@
 #define SerialX Serial
 #endif
 //#define SLEEP_CTRL
-#define SLEEP_CTRL_I2C_ADDR   (0x24)
-#define TASK_NBR_OF           3
+//#define SLEEP_CTRL_I2C_ADDR   (0x24)
+#define TASK_NBR_OF           4
 //#define LED_INDICATION
 
 typedef struct

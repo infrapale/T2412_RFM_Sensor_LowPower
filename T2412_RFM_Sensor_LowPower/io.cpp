@@ -22,6 +22,9 @@ void io_initialize(void)
     pinMode(PIN_LED_ONBOARD, OUTPUT);
     digitalWrite(PIN_LED_ONBOARD, LOW);
 
+    pinMode(PIN_POWER_ON_1, OUTPUT);
+    digitalWrite(PIN_POWER_ON_1, LOW);
+
     #ifdef  LED_INDICATION
     pinMode(PIN_LED_RED, OUTPUT);
     pinMode(PIN_LED_GREEN, OUTPUT);
@@ -35,6 +38,7 @@ void io_initialize(void)
     // digitalWrite(PIN_LED_RED, LOW); digitalWrite(PIN_LED_GREEN, LOW);  digitalWrite(PIN_LED_BLUE, LOW);
     #endif
     io_led_flash(LED_INDX_GREEN,10);
+
 
 }
 
@@ -62,4 +66,10 @@ void io_run_100ms(void)
           }
        } 
     }
+}
+
+void io_pwr_on_1(bool pwr_ctrl)
+{
+    if(pwr_ctrl) digitalWrite(PIN_POWER_ON_1, LOW);
+    else digitalWrite(PIN_POWER_ON_1, HIGH);
 }
