@@ -5,7 +5,8 @@ HW: Adafruit M0 RFM69 Feather or Arduino Pro Mini + RFM69
 Send and receive data via UART
 
 *******************************************************************************
-https://github.com/infrapale/T2310_RFM69_TxRx
+https://github.com/infrapale/T2412_RFM_Sensor_LowPower
+*******************************************************************************
 https://learn.adafruit.com/adafruit-feather-m0-radio-with-rfm69-packet-radio
 https://learn.sparkfun.com/tutorials/rfm69hcw-hookup-guide/all
 *******************************************************************************
@@ -33,7 +34,6 @@ Sensor Radio Message:   {"Z":"OD_1","S":"Temp","V":23.1,"R":"-"}
 #include "sensor.h"
 #include "watchdog.h"
 
-#define ZONE  "OD_1"
 //*********************************************************************************************
 #define SERIAL_BAUD   9600
 #define ENCRYPTKEY    RFM69_KEY   // defined in secret.h
@@ -46,7 +46,6 @@ RH_RF69         *rf69p;
 
 void debug_print_task(void);
 void run_100ms(void);
-void rfm_receive_task(void); 
 
 atask_st debug_print_handle         = {"Debug Print    ", 5000,0, 0, 255, 0, 1, debug_print_task};
 //atask_st clock_handle               = {"Tick Task      ", 100, 0, 0, 255, 0, 1, run_100ms};
