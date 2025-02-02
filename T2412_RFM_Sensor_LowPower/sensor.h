@@ -7,8 +7,8 @@
 #define  SENSOR_MAX_VALUES    4
 
 //#define ZONE_UNDEFINED 
-//#define ZONE_VA_TUPA
-#define ZONE_VA_OD
+#define ZONE_VA_TUPA
+//#define ZONE_VA_OD
 //#define ZONE_TEST
 //#define SENSOR_VA_MH1
 //#define SENSOR_VA_MH2
