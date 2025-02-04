@@ -5,6 +5,8 @@
 #include <Adafruit_Sensor.h>
 #include "Adafruit_BME680.h"
 #include <Adafruit_SCD30.h>
+#include <Adafruit_PCT2075.h>
+#include "xi2c.h"
 #include "json.h"
 #include "rfm_send.h"
 
@@ -81,13 +83,34 @@ sensor_ctrl_st sensor_ctrl;
   sensor_st sensor[NBR_OF_SENSORS] =
   {
     {
-      "Test",
-      .sensor_type = SENSOR_SCD30,
+      "VA_Varasto",
+      .sensor_type = SENSOR_PCT2075,
       {
         {"Temp", SENSOR_VALUE_TEMPERATURE,  SCD30_ADDR, 0.0, false, 10000, 60000 },
         {"Hum",  SENSOR_VALUE_HUMIDITY,     SCD30_ADDR, 0.0, false, 20000, 60000 },
         {"CO2",  SENSOR_VALUE_CO2,          SCD30_ADDR, 0.0, false, 30000, 60000 },
         {"-",    SENSOR_VALUE_UNDEFINED,    SCD30_ADDR, 0.0, false, 40000, 60000 },
+      }
+    }
+  };
+    
+#endif
+
+#ifdef ZONE_VA_VARASTO
+  #define NBR_OF_SENSORS 1
+  #define PCT2075_ADDR   0x37
+  #define USE_PCT2075
+  
+  sensor_st sensor[NBR_OF_SENSORS] =
+  {
+    {
+      "Test",
+      .sensor_type = SENSOR_SCD30,
+      {
+        {"Temp", SENSOR_VALUE_TEMPERATURE,  PCT2075_ADDR, 0.0, false, 10000, 60000 },
+        {"-",    SENSOR_VALUE_UNDEFINED,    PCT2075_ADDR, 0.0, false, 20000, 60000 },
+        {"-",    SENSOR_VALUE_UNDEFINED,    PCT2075_ADDR, 0.0, false, 30000, 60000 },
+        {"-",    SENSOR_VALUE_UNDEFINED,    PCT2075_ADDR, 0.0, false, 40000, 60000 },
       }
     }
   };
@@ -100,6 +123,10 @@ Adafruit_BME680 bme(&Wire); // I2C
 
 #ifdef USE_SCD30
   Adafruit_SCD30  scd30;
+#endif
+
+#ifdef USE_PCT2075
+  Adafruit_PCT2075 PCT2075;
 #endif
 
 
@@ -135,6 +162,15 @@ void sensor_initialize(void)
       bme.setPressureOversampling(BME680_OS_4X);
       bme.setIIRFilterSize(BME680_FILTER_SIZE_3);
       bme.setGasHeater(320, 150); // 320*C for 150 ms
+  #endif
+
+  #ifdef USE_PCT2075
+      if (!PCT2075.begin(PCT2075_ADDR)) 
+      {
+        Serial.println(F("Could not find a valid PCT2075 sensor, check wiring!"));
+        while (1) delay(10);
+      }
+
   #endif
 
   #ifdef USE_SCD30
@@ -243,6 +279,21 @@ bool sensor_read_scd30(uint8_t indx)
     return scd30_ok;
 }
 
+void sensor_read_pct2075(uint8_t sindx)
+{
+    for(uint8_t vindx= 0; vindx < SENSOR_MAX_VALUES; vindx++)
+    {
+        switch(sensor[sindx].values[vindx].type)
+        {
+            case SENSOR_VALUE_TEMPERATURE:
+                uint8_t ldr_pin = sensor[sindx].values[vindx].addr;
+                sensor[sindx].values[vindx].value = PCT2075.getTemperature();
+                sensor[sindx].values[vindx].updated = true;
+                break;
+        }    
+    }
+}
+
 void sensor_read_ldr(uint8_t sindx)
 {
     for(uint8_t vindx= 0; vindx < SENSOR_MAX_VALUES; vindx++)
@@ -274,10 +325,11 @@ void sensor_read_all(void)
             case SENSOR_SCD30:
                 sensor_read_scd30(sindx);
                 break;
+            case SENSOR_PCT2075:
+                sensor_read_pct2075(sindx);
+                break;
         }
-
     }
-
 }
 
 void sensor_print_value(uint8_t sindx, uint8_t vindx)
@@ -355,6 +407,7 @@ void sensor_task(void)
                 all_done = true;
                 next_send_ms = millis() + 10000;
                 sensor_handle.state = 10;
+                xi2c_set_sleep_time(10000);
             }
             value_index = 0;
           }

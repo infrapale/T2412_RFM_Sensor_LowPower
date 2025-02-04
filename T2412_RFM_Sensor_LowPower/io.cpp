@@ -26,9 +26,11 @@ void io_initialize(void)
     pinMode(PIN_LED_RED, OUTPUT);
     pinMode(PIN_LED_GREEN, OUTPUT);
     pinMode(PIN_LED_BLUE, OUTPUT);
+    pinMode(PIN_CLEAR_WD, OUTPUT);
     digitalWrite(PIN_LED_RED, LOW);
     digitalWrite(PIN_LED_GREEN, LOW);
     digitalWrite(PIN_LED_BLUE, LOW);
+    digitalWrite(PIN_CLEAR_WD, HIGH);
     // digitalWrite(PIN_LED_RED, HIGH);   delay(1000);
     // digitalWrite(PIN_LED_GREEN, HIGH); delay(1000);
     // digitalWrite(PIN_LED_BLUE, HIGH);  delay(1000);    
@@ -62,4 +64,13 @@ void io_run_100ms(void)
           }
        } 
     }
+}
+
+void io_toggle_clear_wd(void)
+{
+  static uint8_t state = HIGH;
+
+  if (state == HIGH ) state = LOW;
+  else state = HIGH;
+  digitalWrite(PIN_CLEAR_WD, state);  
 }

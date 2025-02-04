@@ -7,6 +7,16 @@ void rfm_send_read_uart(void);
 
 
 
+    // static uint8_t wd_test_cntr = 12;
+    // static uint8_t tick_cntr = 0;
+    // if(++tick_cntr > wd_test_cntr)
+    // {
+    //     io_toggle_clear_wd();
+    //     tick_cntr = 0;
+    //     wd_test_cntr += 10;
+    // }
+
+
 
 
 void xxsend_rfm69_message(String str)

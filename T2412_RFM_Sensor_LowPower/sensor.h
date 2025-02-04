@@ -8,7 +8,9 @@
 
 //#define ZONE_UNDEFINED 
 //#define ZONE_VA_TUPA
-#define ZONE_TEST
+//#define ZONE_TEST
+#define ZONE_VA_VARASTO
+
 //#define SENSOR_VA_MH1
 //#define SENSOR_VA_MH2
 //#define SENSOR_VA_PARVI
@@ -38,6 +40,7 @@ typedef enum
   SENSOR_BME680_HUM,
   SENSOR_BME680_PRESSURE,
   SENSOR_CO2,
+  SENSOR_PCT2075,
   SENSOR_NBR_OF
 } sensor_et;
 

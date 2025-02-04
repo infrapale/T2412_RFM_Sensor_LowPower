@@ -21,6 +21,7 @@
 #define PIN_LED_GREEN   4
 #define PIN_LED_BLUE    3
 
+#define PIN_CLEAR_WD    7
 typedef enum
 {
     LED_INDX_ONBOARD = 0,
@@ -36,5 +37,6 @@ void io_led_flash(led_index_et led_indx, uint16_t nbr_ticks );
 
 void io_run_100ms(void);
 
+void io_toggle_clear_wd(void);
 
 #endif
