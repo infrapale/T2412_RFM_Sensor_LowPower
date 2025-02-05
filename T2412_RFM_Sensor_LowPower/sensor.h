@@ -29,6 +29,9 @@ typedef enum
   SENSOR_VALUE_PRESSURE,
   SENSOR_VALUE_GAS,
   SENSOR_VALUE_LDR,
+  SENSOR_VALUE_LUX,
+  SENSOR_VALUE_ALS,
+  SENSOR_VALUE_WHITE,
 } sensor_value_type_et;
 
 typedef enum
@@ -37,6 +40,8 @@ typedef enum
   SENSOR_BME680,
   SENSOR_SCD30,
   SENSOR_LDR,
+  SENSOR_VEML7700,
+  SENSOR_MCP9808,
   SENSOR_BME680_HUM,
   SENSOR_BME680_PRESSURE,
   SENSOR_CO2,
@@ -46,7 +51,8 @@ typedef enum
 
 
 void sensor_initialize(void);
-void sensor_task(void);
+void sensor_read_task(void);
+void sensor_send_task(void);
 
 
 #endif

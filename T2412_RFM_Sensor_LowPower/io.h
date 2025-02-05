@@ -13,6 +13,8 @@
 #define RFM69_INT     2
 #define RFM69_IRQN    0  // Pin 2 is IRQ 0!
 #define RFM69_RST     9
+
+#define PIN_POWER_ON_1  3
 #endif
 // LED Definitions
 #define PIN_LED_ONBOARD 13  // onboard blinky
