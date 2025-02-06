@@ -23,5 +23,5 @@
 #define RF69_FREQ     434.0  //915.0
 
 
-void rfm69_initialize(RH_RF69 *rf69_ptr);
+void rfm69_initialize();
 #endif

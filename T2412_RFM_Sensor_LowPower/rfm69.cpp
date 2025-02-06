@@ -7,14 +7,17 @@
 #include "rfm69.h"
 #include "secrets.h"
 
-extern RH_RF69 *rf69p;
+
+RH_RF69   rf69(RFM69_CS, RFM69_INT);
+RH_RF69   *rf69p;
 
 // char radio_packet[MAX_MESSAGE_LEN];
 // RH_RF69 *rf69_p;
 
 
-void rfm69_initialize(RH_RF69 *rf69_ptr)
+void rfm69_initialize(void)
 {
+    rf69p = &rf69;   //TODO   move to RFM69
 
     pinMode(RFM69_RST, OUTPUT);
     digitalWrite(RFM69_RST, LOW);

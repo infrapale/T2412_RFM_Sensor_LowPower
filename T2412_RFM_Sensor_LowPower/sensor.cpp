@@ -27,11 +27,11 @@ https://learn.adafruit.com/adafruit-mcp9808-precision-i2c-temperature-sensor-gui
 
 typedef struct 
 {
-    uint8_t indx;
+    //uint8_t indx;
     char    radio_msg[MAX_MESSAGE_LEN];
     //uint32_t  next_action;
 
-    uint8_t read_task_indx;
+    //uint8_t read_task_indx;
     uint8_t send_task_indx;
 } sensor_ctrl_st;
 
@@ -55,8 +55,6 @@ typedef struct
 
 } sensor_st;
 
-
-atask_st sensor_read_handle         = {"Sensor Read    ", 1000, 0, 0, 255, 0, 1, &sensor_read_task};
 atask_st sensor_send_handle         = {"Sensor Send    ", 1000, 0, 0, 255, 0, 1, &sensor_send_task};
 
 
@@ -134,7 +132,7 @@ sensor_ctrl_st sensor_ctrl;
   sensor_st sensor[NBR_OF_SENSORS] =
   {
     {
-      "VA_Varasto",
+      "Test",
       .sensor_type = SENSOR_PCT2075,
       {
         {"Temp", SENSOR_VALUE_TEMPERATURE,  SCD30_ADDR, 0.0, false, 10000, 300000 },
@@ -158,7 +156,7 @@ sensor_ctrl_st sensor_ctrl;
       "Varasto",
       .sensor_type = SENSOR_PCT2075,
       {
-        {"Temp", SENSOR_VALUE_TEMPERATURE,  PCT2075_ADDR, 0.0, false, 10000, 60000 },
+        {"Temp", SENSOR_VALUE_TEMPERATURE,  PCT2075_ADDR, 0.0, false, 10, 600 },
         {"-",    SENSOR_VALUE_UNDEFINED,    PCT2075_ADDR, 0.0, false, 20000, 60000 },
         {"-",    SENSOR_VALUE_UNDEFINED,    PCT2075_ADDR, 0.0, false, 30000, 60000 },
         {"-",    SENSOR_VALUE_UNDEFINED,    PCT2075_ADDR, 0.0, false, 40000, 60000 },
@@ -191,26 +189,10 @@ Adafruit_VEML7700 veml = Adafruit_VEML7700();
 
 void sensor_initialize(void)
 {
-  //io_pwr_on_1(true);
   delay(2000);
 
-  //sensor_ctrl.next_radiate = millis() + 20000;
   Serial.println(F("Sensor Setup"));
-  // for(uint8_t sindx = 0; sindx < NBR_OF_SENSORS; sindx++)
-  // {
-  //     if(sensor[sindx].sensor_type != SENSOR_UNDEFINED)
-  //     {
-  //         for(uint8_t vindx= 0; vindx < SENSOR_MAX_VALUES; vindx++)
-  //         {
-  //           Serial.print(sensor[sindx].zone);
-  //           Serial.print(F(" "));
-  //           Serial.println(sensor[sindx].values[vindx].label);
-  //         }
-  //     }
-
-
-  Serial.println();
-
+  
   #ifdef USE_BME680
       if (!bme.begin(BME680_ADDR)) {
         Serial.println(F("Could not find a valid BME680 sensor, check wiring!"));
@@ -231,7 +213,7 @@ void sensor_initialize(void)
         Serial.println(F("Could not find a valid PCT2075 sensor, check wiring!"));
         while (1) delay(10);
       }
-
+      Serial.println(F("PCT2075 Initialized!"));
   #endif
 
   #ifdef USE_SCD30
@@ -244,8 +226,6 @@ void sensor_initialize(void)
     Serial.print(F("Measurement Interval: ")); 
     Serial.print(scd30.getMeasurementInterval()); 
     Serial.println(F(" seconds"));
-
-
   #endif
 
   #ifdef MCP9808_ADDR
@@ -317,8 +297,7 @@ void sensor_initialize(void)
   }
   #endif
 
-  sensor_ctrl.indx = 0;
-  sensor_ctrl.read_task_indx = atask_add_new(&sensor_read_handle);
+  //sensor_ctrl.indx = 0;
   sensor_ctrl.send_task_indx = atask_add_new(&sensor_send_handle);
 }
 
@@ -400,8 +379,10 @@ bool sensor_read_scd30(uint8_t indx)
 }
 #endif  
 
+#ifdef USE_PCT2075
 void sensor_read_pct2075(uint8_t sindx)
-{
+{ 
+    Serial.print(F("Read PCT2075"));
     for(uint8_t vindx= 0; vindx < SENSOR_MAX_VALUES; vindx++)
     {
         switch(sensor[sindx].values[vindx].type)
@@ -413,7 +394,9 @@ void sensor_read_pct2075(uint8_t sindx)
                 break;
         }    
     }
+    Serial.println(F(" ... done"));
 }
+#endif
 
 #ifdef LDR_PIN
 bool sensor_read_ldr(uint8_t sindx)
@@ -573,38 +556,6 @@ void sensor_print_all(void)
 
 }
 
-void sensor_read_task(void)
-{
-  /*
-    static uint8_t  sensor_index = 0;
-    static uint8_t  value_index = 0;
-    bool all_done;
-
-    watchdog_clear_local();
-    switch(sensor_read_handle.state)
-    {
-        case 0:
-            sensor_read_handle.state = 10;
-            io_pwr_on_1(false);
-            atask_delay(sensor_ctrl.read_task_indx,4000);
-            break;
-        case 10:
-            io_pwr_on_1(true);
-            atask_delay(sensor_ctrl.read_task_indx,4000);
-            sensor_read_handle.state = 15;
-            break;      
-        case 15: 
-            sensor_read_all();
-            sensor_read_handle.state = 20;
-            io_pwr_on_1(false);
-            atask_delay(sensor_ctrl.read_task_indx,15000);
-          break;
-        case 20:
-            sensor_read_handle.state = 10;
-            break;
-      }
-*/
-}
 
 void sensor_send_task(void)
 {
@@ -617,7 +568,9 @@ void sensor_send_task(void)
     {
         case 0:
           sensor_read_all();
-          sensor_send_handle.state = 10;
+          sensor_index = 0;
+          value_index = 0;
+         sensor_send_handle.state = 10;
           break;
         case 10:
           if((sensor[sensor_index].values[value_index].type != SENSOR_VALUE_UNDEFINED) && 
@@ -629,7 +582,7 @@ void sensor_send_task(void)
                 sensor_index = 0;
                 // next_send_ms = millis() + 10000;
                 sensor_send_handle.state = 10;
-                xi2c_set_sleep_time(10000);
+                //xi2c_set_sleep_time(10000);
             }
             value_index = 0;
 
@@ -653,7 +606,14 @@ void sensor_send_task(void)
             value_index = 0;
             if(++sensor_index >= NBR_OF_SENSORS) sensor_index = 0;
           }
-          sensor_send_handle.state = 10;
+          sensor_send_handle.state = 30;
+          atask_delay(sensor_ctrl.send_task_indx,30000);
+          xi2c_set_sleep_time(30000);
           break;
+        case 30:  
+          // in low power mode we should never come here ad the MCU is powerd down
+          sensor_send_handle.state = 0;
+          break;
+
     }
 }

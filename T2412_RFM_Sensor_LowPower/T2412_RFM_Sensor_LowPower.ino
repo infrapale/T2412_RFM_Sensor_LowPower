@@ -39,24 +39,19 @@ Sensor Radio Message:   {"Z":"OD_1","S":"Temp","V":23.1,"R":"-"}
 #define ENCRYPTKEY    RFM69_KEY   // defined in secret.h
 #define SLEEP_TIME_MS  3000
 
-RH_RF69         rf69(RFM69_CS, RFM69_INT);
-RH_RF69         *rf69p;
-
-#define NBR_TEST_MSG  4
-#define LEN_TEST_MSG  32
 
 void debug_print_task(void);
 void run_100ms(void);
 
 atask_st debug_print_handle         = {"Debug Print    ", 5000,0, 0, 255, 0, 1, debug_print_task};
-//atask_st clock_handle               = {"Tick Task      ", 100, 0, 0, 255, 0, 1, run_100ms};
+atask_st clock_handle               = {"Tick Task      ", 100, 0, 0, 255, 0, 1, run_100ms};
+
 
 void initialize_tasks(void)
 {
   atask_initialize();
   atask_add_new(&debug_print_handle);
-  //atask_add_new(&clock_handle);
-  Serial.print(F("Tasks initialized ")); Serial.println(TASK_NBR_OF);
+  atask_add_new(&clock_handle);
 }
 
 
@@ -82,22 +77,16 @@ void setup()
     #ifdef SLEEP_CTRL
       xi2c_initialize(SLEEP_CTRL_I2C_ADDR);
       delay(10);
-      xi2c_set_wd_timeout(6000);
+      xi2c_set_wd_timeout(60000);
       delay(10);
     #endif
 
-    //?? send_p = rfm_send_get_data_ptr();
     Wire.begin();
 
     watchdog_clear_local();
-
-    //send_p = rfm_send_get_data_ptr();
-    rf69p = &rf69;
-    rfm69_initialize(&rf69);
-    // Hard Reset the RFM module  
+    rfm69_initialize();
     initialize_tasks();
     sensor_initialize();
-
     Serial.println(F("Setup() is ready"));
 }
 
@@ -125,47 +114,3 @@ void debug_print_task(void)
   atask_print_status(true);
 }
 
-
-#ifdef SEND_TEST_MSG
-    void send_test_data_task(void)
-    {
-        static uint8_t indx = 0;
-        static uint8_t cntr = 0;
-        switch(send_test_data_handle.state)
-        {
-          case 0:
-            send_test_data_handle.state = 10;
-            break;
-          case 10:
-            rfm_send_clr_flag_msg_was_sent();
-            //uart_p->rx.str  = test_msg[indx];
-            //uart_p->rx.avail = true;
-            rfm_send_radiate_msg( test_msg[indx] );
-            send_test_data_handle.state = 11;
-            break;
-          case 11:
-            if (rfm_send_get_flag_msg_was_sent())
-            {
-              if (++indx >= 1 )
-              {
-                send_test_data_handle.state = 100;
-                //xi2c_set_sleep_time(SLEEP_TIME_MS);
-                
-                //xi2c_set_wd_timeout(0x2345);
-              }
-              else
-              {
-                send_test_data_handle.state = 12;
-                cntr = 0;
-              }
-            }
-            break;
-          case 12:
-            if(++cntr > 4) send_test_data_handle.state = 10;
-            break;
-          case 100:
-            break;
-      
-        }
-    }
-#endif

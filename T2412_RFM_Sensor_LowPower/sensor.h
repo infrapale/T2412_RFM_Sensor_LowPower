@@ -2,8 +2,8 @@
 #define __SENSOR_H__
 
 #define  SENSOR_SENSOR_LEN    10
-#define  SENSOR_NAME_LEN    10
-#define  ZONE_NAME_LEN    10
+#define  SENSOR_NAME_LEN      10
+#define  ZONE_NAME_LEN        10
 #define  SENSOR_MAX_VALUES    4
 
 //#define ZONE_UNDEFINED 

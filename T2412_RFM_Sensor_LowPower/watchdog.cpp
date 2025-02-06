@@ -9,14 +9,14 @@
 
 
 #ifdef PRO_MINI_RFM69
-AVR_Watchdog watchdog(4);
+// AVR_Watchdog watchdog(4);
 #endif
 
 
 void watchdog_initialize(void)
 {
     #ifdef PRO_MINI_RFM69
-    watchdog.set_timeout(30);
+    //watchdog.set_timeout(30);
     #endif
 
     #ifdef  ADA_M0_RFM69
@@ -29,7 +29,7 @@ void watchdog_initialize(void)
 void watchdog_clear_local(void)
 {
     #ifdef PRO_MINI_RFM69
-    watchdog.clear();
+    //watchdog.clear();
     #endif
     #ifdef  ADA_M0_RFM69
       // Initialze WDT with a 2 sec. timeout
