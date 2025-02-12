@@ -17,6 +17,7 @@
 #define SLEEP_CTRL
 #define SLEEP_CTRL_I2C_ADDR   (0x24)
 #define TASK_NBR_OF           4
+#define TRANSMIT_INTERVAL     30000
 //#define LED_INDICATION
 
 typedef struct

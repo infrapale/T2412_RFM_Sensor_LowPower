@@ -55,7 +55,7 @@ typedef struct
 
 } sensor_st;
 
-atask_st sensor_send_handle         = {"Sensor Send    ", 1000, 0, 0, 255, 0, 1, &sensor_send_task};
+atask_st sensor_send_handle         = {"Sensor Send    ", 100, 0, 0, 255, 0, 1, &sensor_send_task};
 
 
 sensor_ctrl_st sensor_ctrl;
@@ -561,6 +561,8 @@ void sensor_send_task(void)
 {
     static uint8_t sensor_index = 0;
     static uint8_t value_index = 0;
+    static bool    message_sent = false;
+    static bool    all_done = false;
     
     // Serial.print(F("Send Sensor# ")); Serial.print(sensor_index);
     // Serial.print(F(" Value#: ")); Serial.println(value_index);
@@ -570,50 +572,56 @@ void sensor_send_task(void)
           sensor_read_all();
           sensor_index = 0;
           value_index = 0;
-         sensor_send_handle.state = 10;
-          break;
-        case 10:
-          if((sensor[sensor_index].values[value_index].type != SENSOR_VALUE_UNDEFINED) && 
-            (sensor[sensor_index].values[value_index].updated) &&
-            millis() > (sensor[sensor_index].values[value_index].next_ms))
-          {
-            if (++sensor_index >= NBR_OF_SENSORS)
-            {
-                sensor_index = 0;
-                // next_send_ms = millis() + 10000;
-                sensor_send_handle.state = 10;
-                //xi2c_set_sleep_time(10000);
-            }
-            value_index = 0;
-
-            json_convert_sensor_float_to_json(
-                sensor_ctrl.radio_msg, 
-                sensor[sensor_index].zone, 
-                sensor[sensor_index].values[value_index].label, 
-                sensor[sensor_index].values[value_index].value, 
-                "-" );
-            rfm_send_radiate_msg(sensor_ctrl.radio_msg);
-            sensor[sensor_index].values[value_index].updated = false;        
-            sensor[sensor_index].values[value_index].next_ms = millis() +
-              sensor[sensor_index].values[value_index].interval_ms;
-            atask_delay(sensor_ctrl.send_task_indx,5000);
-          }
           sensor_send_handle.state = 20;
+          atask_delay(sensor_ctrl.send_task_indx,2000);
           break;
+
+        case 10:
+            atask_delay(sensor_ctrl.send_task_indx,2000);
+            sensor_send_handle.state = 20;
+            break;
         case 20:
+          if((sensor[sensor_index].values[value_index].type != SENSOR_VALUE_UNDEFINED) && 
+            (sensor[sensor_index].values[value_index].updated))
+          {
+              json_convert_sensor_float_to_json(
+                  sensor_ctrl.radio_msg, 
+                  sensor[sensor_index].zone, 
+                  sensor[sensor_index].values[value_index].label, 
+                  sensor[sensor_index].values[value_index].value, 
+                  "-" );
+              //Serial.println(sensor_ctrl.radio_msg);    
+              rfm_send_radiate_msg(sensor_ctrl.radio_msg);
+              message_sent = true;
+              sensor[sensor_index].values[value_index].updated = false;        
+              sensor[sensor_index].values[value_index].next_ms = millis() +
+                sensor[sensor_index].values[value_index].interval_ms;
+          }  
+     
           if(++value_index >= SENSOR_MAX_VALUES )
           {
-            value_index = 0;
-            if(++sensor_index >= NBR_OF_SENSORS) sensor_index = 0;
+              value_index = 0;
+              if(++sensor_index >= NBR_OF_SENSORS) all_done = true;
           }
-          sensor_send_handle.state = 30;
-          atask_delay(sensor_ctrl.send_task_indx,30000);
-          xi2c_set_sleep_time(30000);
+ 
+          if (all_done)
+          {
+              sensor_send_handle.state = 100;
+          }
+          else
+          {
+              if (message_sent) sensor_send_handle.state = 10;
+          }
+
           break;
-        case 30:  
-          // in low power mode we should never come here ad the MCU is powerd down
-          sensor_send_handle.state = 0;
-          break;
+        case 100:
+            atask_delay(sensor_ctrl.send_task_indx, TRANSMIT_INTERVAL);
+            xi2c_set_sleep_time(TRANSMIT_INTERVAL);
+            sensor_send_handle.state = 110;
+            break;
+        case 110:
+            sensor_send_handle.state = 0;
+            break;  
 
     }
 }
