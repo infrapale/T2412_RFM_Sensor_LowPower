@@ -1,8 +1,7 @@
 /******************************************************************************
-  EDOOG  IS CURRENTLY NOT IN USE,  HW FIX is pending
+  xi2c  I2C Functions
 *******************************************************************************
 https://inductive-kickback.com/2019/04/creating-an-i2c-slave-interface-for-a-sensor-or-peripheral/
-
 https://deepbluembedded.com/arduino-i2c-tutorial-examples/
 https://duino4projects.com/mastering-i2c-interfacing-arduino-boards-for-seamless-communication/
 https://wiki-content.arduino.cc/en/Tutorial/LibraryExamples/MasterWriter

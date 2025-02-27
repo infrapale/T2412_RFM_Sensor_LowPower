@@ -1,8 +1,8 @@
 /**
 T2311_RFM69_Modem 
-HW: Adafruit M0 RFM69 Feather or Arduino Pro Mini + RFM69
-
-Send and receive data via UART
+HW: 
+  Adafruit M0 RFM69 Feather or Arduino Pro Mini + RFM69
+  ATtiny412 power controller
 
 *******************************************************************************
 https://github.com/infrapale/T2412_RFM_Sensor_LowPower
