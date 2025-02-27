@@ -42,9 +42,16 @@ Sensor Radio Message:   {"Z":"OD_1","S":"Temp","V":23.1,"R":"-"}
 
 void debug_print_task(void);
 void run_100ms(void);
-
-atask_st debug_print_handle         = {"Debug Print    ", 5000,0, 0, 255, 0, 1, debug_print_task};
-atask_st clock_handle               = {"Tick Task      ", 100, 0, 0, 255, 0, 1, run_100ms};
+// Tasks (T2409_atask)                  Label             i     n  s   p   c  r  cb
+atask_st debug_print_handle         = {"Debug Print    ", 5000, 0, 0, 255, 0, 1, debug_print_task};
+atask_st clock_handle               = {"Tick Task      ", 100,  0, 0, 255, 0, 1, run_100ms};
+// i  = run interval ms  uint32_t
+// n  = next run millis uint32_t
+// s  = state, uint16_t, use state in state machines 
+// p  = previous state, uint16_t
+// c  = counter uint16_t, task run counter
+// r  = run flag uint16_t,  0x01 = run
+// cb = task callback
 
 
 void initialize_tasks(void)
